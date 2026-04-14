@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🚚 Transporter App</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --text: #e6edf3;
+    --muted: #8b949e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; color: var(--accent); letter-spacing: 1px; }
+  .badge { background: var(--accent); color: #000; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+  
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: border-color .2s;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+  .stat-card .num { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-body { padding: 1.5rem; }
+
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  
+  button {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
+  }
+  button:hover { background: var(--accent2); }
+  button:active { transform: scale(0.98); }
+
+  .bookings-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 420px; overflow-y: auto; }
+  .booking-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    animation: slideIn .3s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .booking-route { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .booking-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  
+  .status-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+  }
+  .status-active   { background: rgba(34,197,94,.15);  color: var(--green); border: 1px solid var(--green); }
+  .status-pending  { background: rgba(234,179,8,.15);  color: var(--yellow); border: 1px solid var(--yellow); }
+  .status-completed{ background: rgba(139,148,158,.15);color: var(--muted);  border: 1px solid var(--muted); }
+
+  .del-btn {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+    width: auto;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .del-btn:hover { background: var(--red); color: #fff; }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--green);
+    color: #000;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    transform: translateY(100px);
+    transition: transform .3s;
+    z-index: 100;
+  }
+  .toast.show { transform: translateY(0); }
+
+  @media(max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 2fr 2fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span>🚚</span>
+  <h1>TRANSPORTER</h1>
+  <span class="badge">Live</span>
+</header>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Total Bookings</div></div>
+    <div class="stat-card"><div class="num" id="stat-active">0</div><div class="label">Active</div></div>
+    <div class="stat-card"><div class="num" id="stat-pending">0</div><div class="label">Pending</div></div>
+    <div class="stat-card"><div class="num" id="stat-completed">0</div><div class="label">Completed</div></div>
+  </div>
+
+  <div class="grid">
+    <!-- New Booking Form -->
+    <div class="card">
+      <div class="card-header">📦 New Booking</div>
+      <div class="card-body">
+        <label>From City</label>
+        <input id="inp-from" type="text" placeholder="e.g. Delhi"/>
+        <label>To City</label>
+        <input id="inp-to" type="text" placeholder="e.g. Mumbai"/>
+        <label>Vehicle Type</label>
+        <select id="inp-vehicle">
+          <option>Truck</option>
+          <option>Mini Van</option>
+          <option>Trailer</option>
+          <option>Pickup</option>
+        </select>
+        <label>Driver Name</label>
+        <input id="inp-driver" type="text" placeholder="e.g. Ravi Kumar"/>
+        <label>Price (₹)</label>
+        <input id="inp-price" type="number" placeholder="e.g. 10000"/>
+        <button onclick="createBooking()">🚀 BOOK TRANSPORT</button>
+      </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="card">
+      <div class="card-header">📋 All Bookings</div>
+      <div class="card-body">
+        <div class="bookings-list" id="bookings-list">
+          <div style="color:var(--muted); text-align:center; padding:2rem;">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Success!</div>
+
+<script>
+  const API = '';
+
+  async function fetchBookings() {
+    const res = await fetch(`${API}/api/bookings`);
+    const { data } = await res.json();
+    renderBookings(data);
+    updateStats(data);
+  }
+
+  function updateStats(data) {
+    document.getElementById('stat-total').textContent = data.length;
+    document.getElementById('stat-active').textContent = data.filter(b => b.status === 'active').length;
+    document.getElementById('stat-pending').textContent = data.filter(b => b.status === 'pending').length;
+    document.getElementById('stat-completed').textContent = data.filter(b => b.status === 'completed').length;
+  }
+
+  function renderBookings(bookings) {
+    const list = document.getElementById('bookings-list');
+    if (!bookings.length) {
+      list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">No bookings yet</div>';
+      return;
+    }
+    list.innerHTML = bookings.map(b => `
+      <div class="booking-item">
+        <div>
+          <div class="booking-route">${b.from} → ${b.to}</div>
+          <div class="booking-meta">${b.vehicle} • ${b.driver} • ₹${b.price.toLocaleString()}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="status-badge status-${b.status}">${b.status}</span>
+          <button class="del-btn" onclick="deleteBooking(${b.id})">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function createBooking() {
+    const from = document.getElementById('inp-from').value.trim();
+    const to = document.getElementById('inp-to').value.trim();
+    const vehicle = document.getElementById('inp-vehicle').value;
+    const driver = document.getElementById('inp-driver').value.trim();
+    const price = parseInt(document.getElementById('inp-price').value) || 0;
+    if (!from || !to) return alert('From and To cities are required!');
+    await fetch(`${API}/api/bookings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, vehicle, driver, price })
+    });
+    ['inp-from','inp-to','inp-driver','inp-price'].forEach(id => document.getElementById(id).value = '');
+    showToast('Booking created!');
+    fetchBookings();
+  }
+
+  async function deleteBooking(id) {
+    await fetch(`${API}/api/bookings/${id}`, { method: 'DELETE' });
+    showToast('Booking removed');
+    fetchBookings();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✅ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  fetchBookings();
+</script>
+</body>
+</html>
