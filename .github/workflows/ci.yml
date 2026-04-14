@@ -1,4 +1,4 @@
-name: 🚚 Transporter App - CI/CD Pipeline
+name: 🚚 Transporter App - CI/CD Pipelinee
 
 on:
   push:
